@@ -2,31 +2,31 @@
 
 ## blocks.csv
 
-Column            | Type       |
-------------------|------------|
-number            | bigint     |
-hash              | hex_string |
-parent_hash       | hex_string |
-nonce             | hex_string |
-sha3_uncles       | hex_string |
-logs_bloom        | hex_string |
-transactions_root | hex_string |
-state_root        | hex_string |
-receipts_root     | hex_string |
-miner             | address    |
-difficulty        | numeric    |
-total_difficulty  | numeric    |
-size              | bigint     |
-extra_data        | hex_string |
-gas_limit         | bigint     |
-gas_used          | bigint     |
-timestamp         | bigint     |
-transaction_count | bigint     |
-base_fee_per_gas  | bigint     |
-withdrawals_root  | string     |
-withdrawals       | string     |
-blob_gas_used     | bigint     |
-excess_blob_gas   | bigint     |
+Column            | Type               |
+------------------|--------------------|
+number            | bigint             |
+hash              | hex_string         |
+parent_hash       | hex_string         |
+nonce             | hex_string         |
+sha3_uncles       | hex_string         |
+logs_bloom        | hex_string         |
+transactions_root | hex_string         |
+state_root        | hex_string         |
+receipts_root     | hex_string         |
+miner             | address            |
+difficulty        | numeric            |
+total_difficulty  | numeric            |
+size              | bigint             |
+extra_data        | hex_string         |
+gas_limit         | bigint             |
+gas_used          | bigint             |
+timestamp         | bigint             |
+transaction_count | bigint             |
+base_fee_per_gas  | bigint             |
+withdrawals_root  | string             |
+withdrawals       | string             |
+blob_gas_used     | bigint             |
+excess_blob_gas   | bigint             |
 
 ---
 
