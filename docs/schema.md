@@ -22,7 +22,9 @@ gas_limit         | bigint             |
 gas_used          | bigint             |
 timestamp         | bigint             |
 transaction_count | bigint             |
-base_fee_per_gas     | bigint             |
+base_fee_per_gas  | bigint             |
+blob_gas_used     | bigint             |
+excess_blob_gas   | bigint             |
 
 ---
 
@@ -45,6 +47,8 @@ block_timestamp  | bigint      |
 max_fee_per_gas  | bigint      |
 max_priority_fee_per_gas | bigint |
 transaction_type | bigint |
+max_fee_per_blob_gas  | bigint |
+blob_versioned_hashes | string |
 
 ---
 
@@ -76,6 +80,8 @@ contract_address             | address     |
 root                         | hex_string  |
 status                       | bigint      |
 effective_gas_price          | bigint      |
+blob_gas_price               | bigint      |
+blob_gas_used                | bigint      |
 
 ---
 
