@@ -41,6 +41,7 @@ def read_resource(resource_group, file_name):
     (483920, 483920, 1, 'block_with_logs', 'mock', 'csv'),
     (47218, 47219, 1, 'blocks_with_transactions', 'mock', 'csv'),
     (47218, 47219, 2, 'blocks_with_transactions', 'mock', 'csv'),
+    (19537146, 19537146, 1, 'blocks_with_dencun_transactions', 'mock', 'csv'),
     skip_if_slow_tests_disabled((0, 0, 1, 'block_without_transactions', 'infura', 'csv')),
     skip_if_slow_tests_disabled((483920, 483920, 1, 'block_with_logs', 'infura', 'csv')),
     skip_if_slow_tests_disabled((47218, 47219, 2, 'blocks_with_transactions', 'infura', 'csv')),

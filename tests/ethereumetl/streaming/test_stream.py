@@ -46,6 +46,7 @@ def read_resource(resource_group, file_name):
     (508110, 508110, 1, 'blocks_508110_508110', ['trace', 'contract', 'token'], 'mock'),
     (2112234, 2112234, 1, 'blocks_2112234_2112234', ['trace', 'contract', 'token'], 'mock'),
     skip_if_slow_tests_disabled([17173049, 17173050, 1, 'blocks_17173049_17173050', EntityType.ALL_FOR_INFURA, 'infura']),
+    skip_if_slow_tests_disabled([19528783, 19528783, 1, 'blocks_19528783_19528783', EntityType.ALL_FOR_INFURA, 'infura']),
 ])
 def test_stream(tmpdir, start_block, end_block, batch_size, resource_group, entity_types, provider_type):
     try:
