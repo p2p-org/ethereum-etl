@@ -15,7 +15,7 @@ def get_origin_ipfs_client():
 
 
 # Parses the shop's HTML index page to extract the name of the IPFS directory under
-# which all the shops data is located.
+# which all the shop data is located.
 def _get_shop_data_dir(shop_index_page):
     match = re.search('<link rel="data-dir" href="(.+?)"', shop_index_page)
     return match.group(1) if match else None
