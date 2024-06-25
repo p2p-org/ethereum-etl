@@ -153,7 +153,7 @@ trace_id                     | string      |
 
 ### Differences between geth and parity traces.csv
 
-- `to_address` field differs for `callcode` trace (geth seems to return correct value, as parity value of `to_address` is same as `to_address` of parent call);
+- `to_address` field differs for `callcode` trace (geth seems to return correct value, as parity value of `to_address` is the same as `to_address` of parent call);
 - geth output doesn't have `reward` traces;
 - geth output doesn't have `to_address`, `from_address`, `value` for `suicide` traces;
 - `error` field contains human readable error message, which might differ in geth/parity output;
