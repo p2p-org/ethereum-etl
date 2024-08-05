@@ -1,0 +1,53 @@
+name: Build & Push Container
+
+on:
+  push:
+    branches:
+    - master
+    - develop
+    tags:
+    - "v*"
+
+jobs:
+  build-images:
+    runs-on: ubuntu-latest
+    outputs:
+      author-name: ${{ steps.author-name.outputs.author-name }}
+      author-email: ${{ steps.author-email.outputs.author-email }}
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4.1.1
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5.5.1
+        with:
+          images: us-central1-docker.pkg.dev/p2p-data-lambda/images/ethereum-etl
+          tags: |
+            type=ref,event=tag
+            type=sha,event=branch,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
+          flavor: |
+            latest=false
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          token_format: 'access_token'
+          credentials_json: '${{ secrets.GOOGLE_ARTIFACTREGISTRY_CREDENTIALS }}'
+
+      - name: Configure GC docker
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev
+
+      - name: Build and push
+        uses: docker/build-push-action@v5.3.0
+        with:
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - id: author-name
+        run: echo "author-name=$(git log -1 --pretty=format:'%an')" >> $GITHUB_OUTPUT
+      - id: author-email
+        run: echo "author-email=$(git log -1 --pretty=format:'%ae')" >> $GITHUB_OUTPUT
+      - id: tag
+        run: echo "tag=$DOCKER_METADATA_OUTPUT_VERSION" >> $GITHUB_OUTPUT
