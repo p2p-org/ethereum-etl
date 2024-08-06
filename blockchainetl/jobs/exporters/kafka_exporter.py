@@ -1,6 +1,8 @@
 import collections
 import json
 import logging
+import os
+from typing import Any
 
 from kafka import KafkaProducer
 
@@ -14,7 +16,21 @@ class KafkaItemExporter:
         self.converter = CompositeItemConverter(converters)
         self.connection_url = self.get_connection_url(output)
         print(self.connection_url)
-        self.producer = KafkaProducer(bootstrap_servers=self.connection_url)
+        kafka_params = self.read_kafka_env_vars()
+        kafka_params["bootstrap_servers"] = self.connection_url
+        self.producer = KafkaProducer(**kafka_params)
+
+    def read_kafka_env_vars(self) -> dict[str, Any]:
+        """Reads environment variables starting with "kafka_" and returns a dictionary."""
+        kafka_env_vars = {}
+        for key, value in os.environ.items():
+            try:
+                value = int(value)
+            except ValueError:
+                pass # value is not an int
+            if key.startswith("KAFKA_"):
+                kafka_env_vars[key[len("KAFKA_"):].lower()] = value
+        return kafka_env_vars
 
     def get_connection_url(self, output):
         try:
