@@ -26,6 +26,7 @@ import click
 from blockchainetl.streaming.streaming_utils import configure_signals, configure_logging
 from ethereumetl.enumeration.entity_type import EntityType
 
+from ethereumetl.misc.wss_block_listener import WssBlockListener
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.streaming.item_exporter_creator import create_item_exporters
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
@@ -37,6 +38,9 @@ from ethereumetl.thread_local_proxy import ThreadLocalProxy
 @click.option('-p', '--provider-uri', default='https://mainnet.infura.io', show_default=True, type=str,
               help='The URI of the web3 provider e.g. '
                    'file://$HOME/Library/Ethereum/geth.ipc or https://mainnet.infura.io')
+@click.option('-p', '--provider-uri-wss', default='', show_default=False, type=str,
+              help='The URI of the web3 provider e.g. '
+                   'file://$HOME/Library/Ethereum/geth.ipc or wss://mainnet.infura.io')                   
 @click.option('-o', '--output', type=str,
               help='Either Google PubSub topic path e.g. projects/your-project/topics/crypto_ethereum; '
                    'or Postgres connection url e.g. postgresql+pg8000://postgres:admin@127.0.0.1:5432/ethereum; '
@@ -53,7 +57,7 @@ from ethereumetl.thread_local_proxy import ThreadLocalProxy
 @click.option('-w', '--max-workers', default=5, show_default=True, type=int, help='The number of workers')
 @click.option('--log-file', default=None, show_default=True, type=str, help='Log file')
 @click.option('--pid-file', default=None, show_default=True, type=str, help='pid file')
-def stream(last_synced_block_file, lag, provider_uri, output, start_block, entity_types,
+def stream(last_synced_block_file, lag, provider_uri, provider_uri_wss, output, start_block, entity_types,
            period_seconds=10, batch_size=2, block_batch_size=10, max_workers=5, log_file=None, pid_file=None):
     """Streams all data types to console or Google Pub/Sub."""
     configure_logging(log_file)
@@ -65,6 +69,7 @@ def stream(last_synced_block_file, lag, provider_uri, output, start_block, entit
 
     # TODO: Implement fallback mechanism for provider uris instead of picking randomly
     provider_uri = pick_random_provider_uri(provider_uri)
+    provider_uri_wss = pick_random_provider_uri(provider_uri_wss)
     logging.info('Using ' + provider_uri)
 
     streamer_adapter = EthStreamerAdapter(
@@ -74,14 +79,20 @@ def stream(last_synced_block_file, lag, provider_uri, output, start_block, entit
         max_workers=max_workers,
         entity_types=entity_types
     )
+
+    block_listener = None
+    if provider_uri_wss:
+        block_listener = WssBlockListener(provider_uri_wss)
+    
     streamer = Streamer(
         blockchain_streamer_adapter=streamer_adapter,
-        last_synced_block_file=last_synced_block_file,
+        last_synced_block_file=last_synced_block_file,        
         lag=lag,
         start_block=start_block,
         period_seconds=period_seconds,
         block_batch_size=block_batch_size,
-        pid_file=pid_file
+        pid_file=pid_file,
+        wss_listener=block_listener
     )
     streamer.stream()
 

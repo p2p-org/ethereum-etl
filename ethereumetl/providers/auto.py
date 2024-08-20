@@ -21,9 +21,10 @@
 # SOFTWARE.
 
 
+import logging
 from urllib.parse import urlparse
 
-from web3 import IPCProvider, HTTPProvider
+from web3 import IPCProvider, HTTPProvider, WebsocketProvider
 
 from ethereumetl.providers.ipc import BatchIPCProvider
 from ethereumetl.providers.rpc import BatchHTTPProvider
@@ -31,7 +32,7 @@ from ethereumetl.providers.rpc import BatchHTTPProvider
 DEFAULT_TIMEOUT = 60
 
 
-def get_provider_from_uri(uri_string, timeout=DEFAULT_TIMEOUT, batch=False):
+def get_provider_from_uri(uri_string: str, timeout=DEFAULT_TIMEOUT, batch=False):
     uri = urlparse(uri_string)
     if uri.scheme == 'file':
         if batch:
@@ -41,9 +42,17 @@ def get_provider_from_uri(uri_string, timeout=DEFAULT_TIMEOUT, batch=False):
     elif uri.scheme == 'http' or uri.scheme == 'https':
         request_kwargs = {'timeout': timeout}
         if batch:
-            return BatchHTTPProvider(uri_string, request_kwargs=request_kwargs)
+            return BatchHTTPProvider(endpoint_uri=uri_string, request_kwargs=request_kwargs)
         else:
             return HTTPProvider(uri_string, request_kwargs=request_kwargs)
+    elif uri.scheme == 'wss':
+        if batch:
+            uri_fixed = uri_string.replace('wss://', 'https://')
+            logging.getLogger('ProviderResolver').warn(f"WSS endpoint can't batch requests. Trying HTTPS {uri_fixed}")
+            request_kwargs = {'timeout': timeout}
+            return BatchHTTPProvider(endpoint_uri=uri_fixed, request_kwargs=request_kwargs)
+        else:
+            return WebsocketProvider(uri_string, websocket_timeout=timeout)
     else:
         raise ValueError('Unknown uri scheme {}'.format(uri_string))
 

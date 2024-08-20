@@ -20,6 +20,10 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #  SOFTWARE.
 
+from collections.abc import Mapping
+import json
+import os
+from typing import Dict
 from blockchainetl.jobs.exporters.console_item_exporter import ConsoleItemExporter
 from blockchainetl.jobs.exporters.multi_item_exporter import MultiItemExporter
 
@@ -92,20 +96,33 @@ def create_item_exporter(output):
         item_exporter = ConsoleItemExporter()
     elif item_exporter_type == ItemExporterType.KAFKA:
         from blockchainetl.jobs.exporters.kafka_exporter import KafkaItemExporter
-        item_exporter = KafkaItemExporter(output, item_type_to_topic_mapping={
-            'block': 'blocks',
-            'transaction': 'transactions',
-            'log': 'logs',
-            'token_transfer': 'token_transfers',
-            'trace': 'traces',
-            'contract': 'contracts',
-            'token': 'tokens',
-        })
-
+        item_exporter = KafkaItemExporter(
+            output, item_type_to_topic_mapping=resolve_topic_mapping()
+        )
     else:
-        raise ValueError('Unable to determine item exporter type for output ' + output)
+        raise ValueError("Unable to determine item exporter type for output " + output)
 
     return item_exporter
+
+
+def resolve_topic_mapping(
+    default_mapping={
+        "block": "blocks",
+        "transaction": "transactions",
+        "log": "logs",
+        "token_transfer": "token_transfers",
+        "trace": "traces",
+        "contract": "contracts",
+        "token": "tokens",
+    }
+) -> Dict[str, str]:
+    """Reads environment variables with topic mapping. returns defaults if no mapping found"""
+    env_mapping = os.environ.get("KAFKA_TOPIC_MAPPING_DICT")
+    if not env_mapping:
+        return default_mapping
+    decoded_mapping: Dict[str, str] = json.loads(env_mapping)
+    assert isinstance(decoded_mapping, Mapping)
+    return decoded_mapping
 
 
 def get_bucket_and_path_from_gcs_output(output):
