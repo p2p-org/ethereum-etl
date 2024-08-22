@@ -21,12 +21,16 @@
 # SOFTWARE.
 
 
+import asyncio
 import logging
 import os
+from threading import Thread
 import time
+from typing import Optional
 
 from blockchainetl.streaming.streamer_adapter_stub import StreamerAdapterStub
 from blockchainetl.file_utils import smart_open
+from ethereumetl.misc.wss_block_listener import WssBlockListener
 
 
 class Streamer:
@@ -40,7 +44,9 @@ class Streamer:
             period_seconds=10,
             block_batch_size=10,
             retry_errors=True,
-            pid_file=None):
+            pid_file=None,
+            wss_listener: Optional[WssBlockListener]=None
+            ):
         self.blockchain_streamer_adapter = blockchain_streamer_adapter
         self.last_synced_block_file = last_synced_block_file
         self.lag = lag
@@ -50,6 +56,13 @@ class Streamer:
         self.block_batch_size = block_batch_size
         self.retry_errors = retry_errors
         self.pid_file = pid_file
+        if wss_listener:
+            self._loop = _get_threaded_loop()
+            asyncio.ensure_future(
+                    wss_listener.subscribe(),
+                    loop=self._loop)
+
+        self.wss_listener=wss_listener
 
         if self.start_block is not None or not os.path.isfile(self.last_synced_block_file):
             init_last_synced_block_file((self.start_block or 0) - 1, self.last_synced_block_file)
@@ -80,10 +93,16 @@ class Streamer:
                 logging.exception('An exception occurred while syncing block data.')
                 if not self.retry_errors:
                     raise e
-
+            self.wss_listener
             if synced_blocks <= 0:
-                logging.info('Nothing to sync. Sleeping for {} seconds...'.format(self.period_seconds))
-                time.sleep(self.period_seconds)
+                if self.wss_listener:
+                    logging.debug('Waiting for a new block')
+                    asyncio.run_coroutine_threadsafe(
+                    self.wss_listener.wait_for_new_block(),
+                    self._loop).result()
+                else:
+                    logging.info('Nothing to sync. Sleeping for {} seconds...'.format(self.period_seconds))
+                    time.sleep(self.period_seconds)
 
     def _sync_cycle(self):
         current_block = self.blockchain_streamer_adapter.get_current_block_number()
@@ -137,3 +156,14 @@ def read_last_synced_block(file):
 def write_to_file(file, content):
     with smart_open(file, 'w') as file_handle:
         file_handle.write(content)
+
+def _get_threaded_loop() -> asyncio.AbstractEventLoop:
+    new_loop = asyncio.new_event_loop()
+    thread_loop = Thread(target=_start_event_loop, args=(new_loop,), daemon=True)
+    thread_loop.start()
+    return new_loop
+
+def _start_event_loop(loop: asyncio.AbstractEventLoop) -> None:
+    asyncio.set_event_loop(loop)
+    loop.run_forever()
+    loop.close()
