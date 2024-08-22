@@ -52,7 +52,7 @@ def get_provider_from_uri(uri_string: str, timeout=DEFAULT_TIMEOUT, batch=False)
             request_kwargs = {'timeout': timeout}
             return BatchHTTPProvider(endpoint_uri=uri_fixed, request_kwargs=request_kwargs)
         else:
-            return WebsocketProvider(uri_string, websocket_timeout=timeout)
+            return WebsocketProvider(endpoint_uri=uri_string, websocket_timeout=timeout)
     else:
         raise ValueError('Unknown uri scheme {}'.format(uri_string))
 
