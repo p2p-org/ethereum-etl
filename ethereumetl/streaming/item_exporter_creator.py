@@ -107,13 +107,13 @@ def create_item_exporter(output):
 
 def resolve_topic_mapping(
     default_mapping={
-        "block": "ethereum_blocks",
-        "transaction": "ethereum_transactions",
-        "log": "ethereum_logs",
-        "token_transfer": "ethereum_token_transfers",
-        "trace": "ethereum_traces",
-        "contract": "ethereum_contracts",
-        "token": "ethereum_tokens",
+        "block": "blocks",
+        "transaction": "transactions",
+        "log": "logs",
+        "token_transfer": "token_transfers",
+        "trace": "traces",
+        "contract": "contracts",
+        "token": "tokens",
     }
 ) -> Dict[str, str]:
     """Reads environment variables with topic mapping. returns defaults if no mapping found"""
