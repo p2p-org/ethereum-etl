@@ -10,21 +10,21 @@ jobs:
     name: Build and publish to PyPI and TestPyPI
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@61b9e3751b92087fd0b06925ba6dd6314e06f089 # master
       - name: Set up Python 3.7
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@0f07f7f756721ebd886c2462646a35f78a8bc4de # v1
         with:
           python-version: 3.7
       - name: Build a binary wheel and a source tarball
         run: python setup.py sdist
       - name: Publish distribution to Test PyPI
         if: startsWith(github.event.ref, 'refs/tags/v')
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@c1b34028248d0c9f7d90fe29fef2122e2276ff6f # master
         with:
           password: ${{ secrets.test_pypi_password }}
           repository_url: https://test.pypi.org/legacy/
       - name: Publish distribution to PyPI
         if: startsWith(github.event.ref, 'refs/tags/v')
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@c1b34028248d0c9f7d90fe29fef2122e2276ff6f # master
         with:
           password: ${{ secrets.pypi_password }}
