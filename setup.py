@@ -57,7 +57,7 @@ setup(
             'grpcio==1.46.3'
         ],
         'streaming-kinesis': [
-            'boto3==1.24.11',
+            'boto3==1.43.87',
             'botocore==1.27.11',
         ],
         'dev': [
