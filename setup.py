@@ -58,7 +58,7 @@ setup(
         ],
         'streaming-kinesis': [
             'boto3==1.24.11',
-            'botocore==1.27.11',
+            'botocore==1.43.87',
         ],
         'dev': [
             'pytest~=4.3.0'
