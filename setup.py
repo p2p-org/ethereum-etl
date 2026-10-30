@@ -57,8 +57,8 @@ setup(
             'grpcio==1.46.3'
         ],
         'streaming-kinesis': [
-            'boto3==1.24.11',
-            'botocore==1.27.11',
+            'boto3==1.43.120',
+            'botocore==1.43.120',
         ],
         'dev': [
             'pytest~=4.3.0'
